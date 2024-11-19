@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Arbitrage Betting</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #1976D2;
+            --background-color: #f0f2f5;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --header-gradient: linear-gradient(135deg, #2196F3, #1976D2);
+            --card-gradient: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            --profit-gradient: linear-gradient(135deg, #4CAF50, #45a049);
+            --button-gradient: linear-gradient(to right, #2196F3, #1976D2);
+        }
+
+        /* Dark theme variables */
+        [data-theme="dark"] {
+            --primary-color: #1565c0;
+            --secondary-color: #0d47a1;
+            --background-color: #1a1a1a;
+            --card-background: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #404040;
+            --header-gradient: linear-gradient(135deg, #1565c0, #0d47a1);
+            --card-gradient: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+            --profit-gradient: linear-gradient(135deg, #388E3C, #2E7D32);
+            --button-gradient: linear-gradient(to right, #1565c0, #0d47a1);
+        }
+
+        /* Blue theme variables */
+        [data-theme="blue"] {
+            --primary-color: #0288d1;
+            --secondary-color: #01579b;
+            --background-color: #e3f2fd;
+            --card-background: #ffffff;
+            --text-color: #01579b;
+            --border-color: #90caf9;
+            --header-gradient: linear-gradient(135deg, #0288d1, #01579b);
+            --card-gradient: linear-gradient(to bottom, #ffffff, #e3f2fd);
+            --profit-gradient: linear-gradient(135deg, #039BE5, #0277BD);
+            --button-gradient: linear-gradient(to right, #0288d1, #01579b);
+        }
+
+        /* Green theme variables */
+        [data-theme="green"] {
+            --primary-color: #2e7d32;
+            --secondary-color: #1b5e20;
+            --background-color: #e8f5e9;
+            --card-background: #ffffff;
+            --text-color: #1b5e20;
+            --border-color: #a5d6a7;
+            --header-gradient: linear-gradient(135deg, #2e7d32, #1b5e20);
+            --card-gradient: linear-gradient(to bottom, #ffffff, #e8f5e9);
+            --profit-gradient: linear-gradient(135deg, #43A047, #2E7D32);
+            --button-gradient: linear-gradient(to right, #2e7d32, #1b5e20);
+        }
+
+        /* Red theme variables */
+        [data-theme="red"] {
+            --primary-color: #c62828;
+            --secondary-color: #b71c1c;
+            --background-color: #ffebee;
+            --card-background: #ffffff;
+            --text-color: #b71c1c;
+            --border-color: #ef9a9a;
+            --header-gradient: linear-gradient(135deg, #c62828, #b71c1c);
+            --card-gradient: linear-gradient(to bottom, #ffffff, #ffebee);
+            --profit-gradient: linear-gradient(135deg, #E53935, #C62828);
+            --button-gradient: linear-gradient(to right, #c62828, #b71c1c);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .url-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .url-input input {
+            flex-grow: 1;
+            padding: 8px;
+        }
+        .url-list {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button.remove-btn {
+            background-color: #f44336;
+        }
+        button.add-btn {
+            background-color: #2196F3;
+            margin-bottom: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .download-btn {
+            margin-top: 10px;
+            background-color: #2196F3;
+        }
+        .arbitrage-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .arbitrage-section h4 {
+            color: #2196F3;
+            margin: 0 0 10px 0;
+        }
+        .arbitrage-section h5 {
+            color: #333;
+            margin: 15px 0 10px 0;
+        }
+        .best-odds-grid, .stakes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .best-odd, .stake {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .team {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .odd, .amount {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        .profit-section {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .profit-amount {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .arbitrage-details {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        .match-card {
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .match-header {
+            background: var(--header-gradient);
+            padding: 25px;
+        }
+        .arbitrage-section {
+            background: linear-gradient(to bottom, #e3f2fd, #ffffff);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .arbitrage-section.has-arbitrage {
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            border: 2px solid #4caf50;
+        }
+        .arbitrage-section h4 {
+            font-size: 1.3em;
+            color: #1565c0;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .arbitrage-section.has-arbitrage h4 {
+            color: #2e7d32;
+        }
+        .best-odds-grid, .stakes-grid {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .best-odd, .stake {
+            background: linear-gradient(to bottom, #f5f5f5, #ffffff);
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s;
+        }
+        .best-odd:hover, .stake:hover {
+            transform: translateY(-2px);
+        }
+        .bookmaker-highlight {
+            font-weight: bold;
+            color: #1565c0;
+            background-color: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .profit-section {
+            background: linear-gradient(to bottom, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            padding: 15px;
+        }
+        .profit-amount {
+            font-size: 1.4em;
+            color: #2e7d32;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+        .odds-table {
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .odds-table th {
+            background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+            color: #1565c0;
+        }
+        .odds-used {
+            background-color: #e8f5e9 !important;
+            font-weight: bold;
+            color: #2e7d32 !important;
+            position: relative;
+        }
+        .odds-used::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            color: #4caf50;
+            font-size: 0.8em;
+        }
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filter-controls, .search-box, .investment-control, .refresh-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-box input, .investment-control input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        .notification.success { background-color: #4caf50; color: white; }
+        .notification.error { background-color: #f44336; color: white; }
+        .notification.info { background-color: #2196F3; color: white; }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .charts-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 768px) {
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        .profit-section {
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .profit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .profit-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .profit-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .profit-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .profit-value.positive {
+            color: #4caf50;
+        }
+
+        .profit-value.negative {
+            color: #f44336;
+        }
+
+        @media (max-width: 600px) {
+            .profit-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: var(--card-background);
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            padding: 20px;
+            background: var(--header-gradient);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-content {
+            padding: 20px;
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .setting-item input[type="number"],
+        .setting-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .theme-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .theme-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .theme-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .theme-slider:before {
+            transform: translateX(26px);
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .settings-toggle:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Update existing components for theme support */
+        .match-card {
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        table th {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /* Add more theme-aware styles as needed */
+        .match-card {
+            background: var(--card-gradient);
+        }
+
+        .match-header {
+            background: var(--header-gradient);
+        }
+
+        button {
+            background: var(--button-gradient);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .profit-section {
+            background: var(--card-gradient);
+        }
+
+        .best-odd {
+            background: var(--card-gradient);
+            transition: transform 0.2s;
+        }
+
+        .best-odd:hover {
+            transform: translateY(-2px);
+        }
+
+        .settings-header {
+            background: var(--header-gradient);
+        }
+
+        .settings-panel {
+            background: var(--card-gradient);
+        }
+
+        .arbitrage-section.has-arbitrage {
+            background: linear-gradient(to bottom right, var(--card-background), #e8f5e9);
+        }
+
+        /* Add subtle gradient to controls */
+        .controls-section {
+            background: var(--card-gradient);
+        }
+
+        /* Add gradient to chart section */
+        .charts-section {
+            background: var(--card-gradient);
+        }
+
+        /* Add gradient to notification */
+        .notification.success {
+            background: var(--profit-gradient);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .notification.info {
+            background: var(--header-gradient);
+        }
+
+        /* Add gradient to loading spinner */
+        .spinner {
+            border-top-color: var(--primary-color);
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1));
+        }
+    </style>
+</head>
+<body>
+    <div id="settingsPanel" class="settings-panel">
+        <div class="settings-header">
+            <h3>Settings</h3>
+            <button onclick="toggleSettings()" class="close-settings">×</button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-item">
+                <label>Theme</label>
+                <select id="themeSelect" onchange="changeTheme(this.value)">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="red">Red</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Default Investment</label>
+                <input type="number" 
+                       id="defaultInvestment" 
+                       value="1000" 
+                       min="100" 
+                       step="100"
+                       onchange="updateDefaultInvestment(this.value)">
+            </div>
+            <div class="setting-item">
+                <label>Auto-refresh Interval</label>
+                <select id="defaultRefreshInterval" onchange="updateRefreshInterval(this.value)">
+                    <option value="0">Off</option>
+                    <option value="30000">30 seconds</option>
+                    <option value="60000">1 minute</option>
+                    <option value="120000">2 minutes</option>
+                    <option value="300000">5 minutes</option>
+                    <option value="600000">10 minutes</option>
+                    <option value="900000">15 minutes</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Notification Duration (seconds)</label>
+                <input type="number" 
+                       id="notificationDuration" 
+                       value="3" 
+                       min="1" 
+                       max="10"
+                       onchange="updateNotificationDuration(this.value)">
+            </div>
+        </div>
+    </div>
+    <button onclick="toggleSettings()" class="settings-toggle">
+        ⚙️ Settings
+    </button>
+    <h1>Live Arbitrage Betting</h1>
+    <div class="controls-section">
+        <div class="filter-controls">
+            <select id="filterSelect" onchange="filterMatches(this.value)">
+                <option value="all">All Matches</option>
+                <option value="arbitrage">Arbitrage Only</option>
+                <option value="no-arbitrage">No Arbitrage</option>
+            </select>
+            <select id="sortSelect" onchange="sortMatches(this.value)">
+                <option value="default">Default Order</option>
+                <option value="profit">Highest Profit</option>
+                <option value="bookmakers">Most Bookmakers</option>
+            </select>
+        </div>
+        <div class="search-box">
+            <input type="text" 
+                   id="searchInput" 
+                   placeholder="Search teams or bookmakers..."
+                   onkeyup="searchMatches(this.value)">
+        </div>
+        <div class="investment-control">
+            <label>Investment Amount: $</label>
+            <input type="number" 
+                   id="investmentAmount" 
+                   value="1000" 
+                   min="100"
+                   step="100"
+                   onchange="updateInvestmentAmount(this.value)">
+        </div>
+        <div class="refresh-control">
+            <label>Auto-refresh: </label>
+            <select id="refreshInterval" onchange="setAutoRefresh(this.value)">
+                <option value="0">Off</option>
+                <option value="30000">30 seconds</option>
+                <option value="60000">1 minute</option>
+                <option value="120000">2 minutes</option>
+                <option value="300000">5 minutes</option>
+                <option value="600000">10 minutes</option>
+                <option value="900000">15 minutes</option>
+            </select>
+        </div>
+    </div>
+    <div id="notificationContainer"></div>
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing data...</p>
+    </div>
+    <div class="container">
+        <div id="urlList" class="url-list">
+            <!-- URLs will be loaded here -->
+        </div>
+        <button class="add-btn" onclick="addUrlInput()">Add Another Sheet</button>
+        <button onclick="convertToJson()">Convert All to JSON</button>
+        <button id="downloadBtn" class="download-btn" onclick="downloadJson()" style="display: none;">Download JSON</button>
+        <button class="remove-btn" onclick="clearAllUrls()" style="margin-left: 10px;">Clear All Saved URLs</button>
+        <pre id="result"></pre>
+    </div>
+
+    <script>
+        let jsonResult = null;
+        let autoRefreshInterval = null;
+        let currentData = null;
+
+        // Load saved URLs when page loads
+        window.onload = function() {
+            loadSavedUrls();
+        }
+
+        function loadSavedUrls() {
+            const savedUrls = JSON.parse(localStorage.getItem('sheetUrls')) || [''];
+            const urlList = document.getElementById('urlList');
+            urlList.innerHTML = ''; // Clear existing inputs
+            
+            savedUrls.forEach(url => {
+                const newInput = document.createElement('div');
+                newInput.className = 'url-input';
+                newInput.innerHTML = `
+                    <input type="text" class="sheet-url" value="${url}" onchange="saveUrls()" placeholder="Enter Google Sheets URL">
+                    <button class="remove-btn" onclick="removeUrl(this)">Remove</button>
+                `;
+                urlList.appendChild(newInput);
+            });
+        }
+
+        function saveUrls() {
+            const urls = Array.from(document.getElementsByClassName('sheet-url'))
+                .map(input => input.value);
+            localStorage.setItem('sheetUrls', JSON.stringify(urls));
+        }
+
+        function addUrlInput() {
+            const urlList = document.getElementById('urlList');
+            const newInput = document.createElement('div');
+            newInput.className = 'url-input';
+            newInput.innerHTML = `
+                <input type="text" class="sheet-url" onchange="saveUrls()" placeholder="Enter Google Sheets URL">
+                <button class="remove-btn" onclick="removeUrl(this)">Remove</button>
+            `;
+            urlList.appendChild(newInput);
+            saveUrls();
+        }
+
+        function removeUrl(button) {
+            const urlList = document.getElementById('urlList');
+            if (urlList.children.length > 1) {
+                button.parentElement.remove();
+                saveUrls();
+            }
+        }
+
+        function clearAllUrls() {
+            if (confirm('Are you sure you want to clear all saved URLs?')) {
+                localStorage.removeItem('sheetUrls');
+                loadSavedUrls(); // Reset to single empty input
+                const resultDiv = document.getElementById('result');
+                resultDiv.textContent = '';
+                document.getElementById('downloadBtn').style.display = 'none';
+            }
+        }
+
+        function getCSVUrl(url) {
+            const matches = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            if (!matches) return null;
+            const sheetId = matches[1];
+            return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+        }
+
+        async function convertToJson() {
+            showLoading(true);
+            try {
+                const urls = Array.from(document.getElementsByClassName('sheet-url'))
+                    .map(input => input.value)
+                    .filter(url => url.trim() !== '');
+                
+                const resultDiv = document.getElementById('result');
+                const downloadBtn = document.getElementById('downloadBtn');
+                
+                if (urls.length === 0) {
+                    resultDiv.textContent = 'Please enter at least one Google Sheets URL';
+                    return;
+                }
+
+                // Fetch and combine all data first
+                const allData = [];
+                
+                for (let index = 0; index < urls.length; index++) {
+                    const csvUrl = getCSVUrl(urls[index]);
+                    if (!csvUrl) {
+                        throw new Error(`Invalid Google Sheets URL at position ${index + 1}`);
+                    }
+
+                    const response = await fetch(csvUrl);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch sheet data at position ${index + 1}. Make sure the sheet is public!`);
+                    }
+
+                    const csvData = await response.text();
+                    const sheetData = csvToJSON(csvData);
+                    allData.push(...sheetData); // Combine all data into one array
+                }
+
+                // Group the combined data
+                const groupedData = groupByMatches(allData);
+
+                jsonResult = {
+                    total_matches: groupedData.length,
+                    matches: groupedData
+                };
+                
+                // Display grouped data in a more readable format
+                displayGroupedData(groupedData);
+                downloadBtn.style.display = 'inline-block';
+                currentData = groupedData; // Store the data globally
+                
+                showNotification('Data converted successfully', 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function groupByMatches(data) {
+            const matches = {};
+            
+            data.forEach(item => {
+                const matchKey = `${item.home_team} vs ${item.away_team}`;
+                if (!matches[matchKey]) {
+                    matches[matchKey] = {
+                        match_id: item.game_id,
+                        home_team: item.home_team,
+                        away_team: item.away_team,
+                        last_update: item.last_update,
+                        odds: []
+                    };
+                }
+                
+                matches[matchKey].odds.push({
+                    bookmaker: item.bookmaker,
+                    home_odds: item.odd_1,
+                    away_odds: item.odd_2,
+                    draw_odds: item.odd_draw
+                });
+            });
+
+            return Object.values(matches);
+        }
+
+        function calculateArbitrage(odds) {
+            // Find best odds for each outcome
+            const bestOdds = {
+                home: Math.max(...odds.map(o => parseFloat(o.home_odds))),
+                draw: Math.max(...odds.map(o => parseFloat(o.draw_odds))),
+                away: Math.max(...odds.map(o => parseFloat(o.away_odds)))
+            };
+
+            // Calculate implied probabilities
+            const impliedProb = {
+                home: 1 / bestOdds.home,
+                draw: 1 / bestOdds.draw,
+                away: 1 / bestOdds.away
+            };
+
+            // Calculate total implied probability
+            const totalImpliedProb = impliedProb.home + impliedProb.draw + impliedProb.away;
+
+            // Check if arbitrage exists (total implied probability < 1)
+            const hasArbitrage = totalImpliedProb < 1;
+            const arbitragePercent = ((1 - totalImpliedProb) * 100).toFixed(2);
+
+            // Calculate optimal stakes for $1000 investment
+            const investment = 1000;
+            const stakes = {
+                home: (investment * impliedProb.home / totalImpliedProb).toFixed(2),
+                draw: (investment * impliedProb.draw / totalImpliedProb).toFixed(2),
+                away: (investment * impliedProb.away / totalImpliedProb).toFixed(2)
+            };
+
+            // Calculate guaranteed profit
+            const guaranteedProfit = hasArbitrage ? 
+                ((investment / totalImpliedProb) - investment).toFixed(2) : 0;
+
+            return {
+                bestOdds,
+                hasArbitrage,
+                arbitragePercent,
+                stakes,
+                guaranteedProfit,
+                totalImpliedProb: totalImpliedProb.toFixed(4)
+            };
+        }
+
+        function getArbitrageHtml(match, arbitrage) {
+            const sectionClass = arbitrage.hasArbitrage ? 'arbitrage-section has-arbitrage' : 'arbitrage-section';
+            
+            if (!arbitrage.hasArbitrage) {
+                return `
+                    <div class="${sectionClass}">
+                        <h4>No Arbitrage Opportunity</h4>
+                        <p style="text-align: center; color: #666;">Total implied probability: ${(arbitrage.totalImpliedProb * 100).toFixed(2)}%</p>
+                    </div>
+                `;
+            }
+
+            // Find bookmakers offering the best odds
+            const bestHomeBookmaker = match.odds.find(o => parseFloat(o.home_odds) === arbitrage.bestOdds.home).bookmaker;
+            const bestDrawBookmaker = match.odds.find(o => parseFloat(o.draw_odds) === arbitrage.bestOdds.draw).bookmaker;
+            const bestAwayBookmaker = match.odds.find(o => parseFloat(o.away_odds) === arbitrage.bestOdds.away).bookmaker;
+
+            // Calculate total payout
+            const totalPayout = parseFloat(arbitrage.guaranteedProfit) + 1000; // 1000 is the investment
+
+            // Update the profit section HTML
+            const profitSectionHtml = `
+                <div class="profit-section">
+                    <div class="profit-grid">
+                        <div class="profit-item">
+                            <span class="profit-label">Total Payout</span>
+                            <span class="profit-value">$${totalPayout.toFixed(2)}</span>
+                        </div>
+                        <div class="profit-item">
+                            <span class="profit-label">Total Profit</span>
+                            <span class="profit-value ${parseFloat(arbitrage.guaranteedProfit) > 0 ? 'positive' : 'negative'}">
+                                $${arbitrage.guaranteedProfit}
+                            </span>
+                        </div>
+                        <div class="profit-item">
+                            <span class="profit-label">ROI</span>
+                            <span class="profit-value ${parseFloat(arbitrage.guaranteedProfit) > 0 ? 'positive' : 'negative'}">
+                                ${((arbitrage.guaranteedProfit / 1000) * 100).toFixed(2)}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return `
+                <div class="${sectionClass}">
+                    <h4>✨ Arbitrage Opportunity Found! ✨</h4>
+                    <div class="arbitrage-details">
+                        <h5>Best Odds:</h5>
+                        <div class="best-odds-grid">
+                            <div class="best-odd">
+                                <span class="team">${match.home_team}</span>
+                                <span class="odd">${arbitrage.bestOdds.home}</span>
+                                <span class="bookmaker-highlight">${bestHomeBookmaker}</span>
+                            </div>
+                            <div class="best-odd">
+                                <span class="team">Draw</span>
+                                <span class="odd">${arbitrage.bestOdds.draw}</span>
+                                <span class="bookmaker-highlight">${bestDrawBookmaker}</span>
+                            </div>
+                            <div class="best-odd">
+                                <span class="team">${match.away_team}</span>
+                                <span class="odd">${arbitrage.bestOdds.away}</span>
+                                <span class="bookmaker-highlight">${bestAwayBookmaker}</span>
+                            </div>
+                        </div>
+                        
+                        <h5>Recommended Stakes (for $1000 investment):</h5>
+                        <div class="stakes-grid">
+                            <div class="stake">
+                                <span class="team">${match.home_team}</span>
+                                <span class="amount">$${arbitrage.stakes.home}</span>
+                            </div>
+                            <div class="stake">
+                                <span class="team">Draw</span>
+                                <span class="amount">$${arbitrage.stakes.draw}</span>
+                            </div>
+                            <div class="stake">
+                                <span class="team">${match.away_team}</span>
+                                <span class="amount">$${arbitrage.stakes.away}</span>
+                            </div>
+                        </div>
+                        
+                        ${profitSectionHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayGroupedData(groupedData) {
+            const resultDiv = document.getElementById('result');
+            let displayHtml = '';
+
+            displayHtml += `<div class="matches-data">
+                <h2>All Matches (${groupedData.length})</h2>
+                <div class="matches-grid">`;
+
+            groupedData.forEach((match, index) => {
+                // Calculate arbitrage first
+                const arbitrage = calculateArbitrage(match.odds);
+
+                displayHtml += `
+                    <div class="match-card" onclick="toggleMatchDetails(${index})">
+                        <div class="match-header">
+                            <div class="teams">
+                                <span class="home-team">${match.home_team}</span>
+                                <span class="vs">vs</span>
+                                <span class="away-team">${match.away_team}</span>
+                            </div>
+                            <div class="match-summary">
+                                <span class="bookmaker-count">${match.odds.length} Bookmakers</span>
+                                <span class="last-update">Updated: ${match.last_update}</span>
+                            </div>
+                        </div>
+                        <div class="match-details" id="match-${index}" style="display: none;">
+                            <table>
+                                <tr>
+                                    <th>Bookmaker</th>
+                                    <th>${match.home_team}</th>
+                                    <th>Draw</th>
+                                    <th>${match.away_team}</th>
+                                </tr>`;
+
+                match.odds.forEach(odd => {
+                    const isHomeUsed = parseFloat(odd.home_odds) === arbitrage.bestOdds.home;
+                    const isDrawUsed = parseFloat(odd.draw_odds) === arbitrage.bestOdds.draw;
+                    const isAwayUsed = parseFloat(odd.away_odds) === arbitrage.bestOdds.away;
+                    
+                    displayHtml += `
+                        <tr>
+                            <td>${odd.bookmaker}</td>
+                            <td class="odds-cell ${isHomeUsed ? 'odds-used' : ''}">${odd.home_odds}</td>
+                            <td class="odds-cell ${isDrawUsed ? 'odds-used' : ''}">${odd.draw_odds}</td>
+                            <td class="odds-cell ${isAwayUsed ? 'odds-used' : ''}">${odd.away_odds}</td>
+                        </tr>`;
+                });
+
+                displayHtml += `
+                            </table>
+                            ${getArbitrageHtml(match, arbitrage)}
+                        </div>
+                    </div>`;
+            });
+
+            displayHtml += `</div></div>`;
+
+            // Add enhanced styles
+            displayHtml = `
+                <style>
+                    .matches-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                        gap: 25px;
+                        padding: 20px 0;
+                    }
+                    .match-card {
+                        border: 1px solid #ddd;
+                        border-radius: 12px;
+                        background-color: white;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        transition: transform 0.2s, box-shadow 0.2s;
+                        cursor: pointer;
+                        overflow: hidden;
+                        min-height: 150px;
+                    }
+                    .match-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                    }
+                    .match-header {
+                        padding: 20px;
+                        background: linear-gradient(135deg, #2196F3, #1976D2);
+                        color: white;
+                    }
+                    .teams {
+                        font-size: 1.4em;
+                        font-weight: bold;
+                        text-align: center;
+                        margin-bottom: 15px;
+                        padding: 0 20px;
+                    }
+                    .vs {
+                        margin: 0 15px;
+                        color: rgba(255,255,255,0.8);
+                    }
+                    .match-summary {
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 1em;
+                        color: rgba(255,255,255,0.9);
+                        padding: 0 10px;
+                    }
+                    .match-details {
+                        padding: 15px;
+                        background-color: #fff;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                        font-size: 0.9em;
+                    }
+                    th, td {
+                        padding: 10px;
+                        text-align: center;
+                        border-bottom: 1px solid #eee;
+                    }
+                    th {
+                        background-color: #f5f5f5;
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    .odds-cell {
+                        font-family: monospace;
+                        font-size: 1.1em;
+                    }
+                    .highest-odd {
+                        color: #2196F3;
+                        font-weight: bold;
+                        position: relative;
+                    }
+                    .highest-odd::after {
+                        content: '★';
+                        position: absolute;
+                        top: -5px;
+                        right: -5px;
+                        font-size: 0.8em;
+                        color: #FFC107;
+                    }
+                    .matches-data h2 {
+                        color: #333;
+                        border-bottom: 2px solid #2196F3;
+                        padding-bottom: 10px;
+                        margin-bottom: 20px;
+                    }
+                    @media (max-width: 900px) {
+                        .matches-grid {
+                            grid-template-columns: 1fr;
+                            padding: 10px;
+                        }
+                        .match-card {
+                            margin: 0 auto;
+                            max-width: 500px;
+                        }
+                    }
+                </style>
+                ${displayHtml}`;
+
+            resultDiv.innerHTML = displayHtml;
+        }
+
+        function toggleMatchDetails(index) {
+            const details = document.getElementById(`match-${index}`);
+            const currentDisplay = details.style.display;
+            details.style.display = currentDisplay === 'none' ? 'block' : 'none';
+        }
+
+        function isHighestOdd(odd, allOdds, type) {
+            const numOdd = parseFloat(odd);
+            const highest = Math.max(...allOdds.map(o => parseFloat(o[type])));
+            return numOdd === highest ? 'highest-odd' : '';
+        }
+
+        function downloadJson() {
+            if (!jsonResult) return;
+
+            // Create one file for all matches
+            const blob = new Blob([JSON.stringify(jsonResult, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `all_matches.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function csvToJSON(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',').map(header => header.trim());
+            
+            return lines.slice(1)
+                .filter(line => line.trim() !== '')
+                .map(line => {
+                    const values = line.split(',').map(value => value.trim());
+                    return headers.reduce((obj, header, index) => {
+                        obj[header] = values[index];
+                        return obj;
+                    }, {});
+                });
+        }
+
+        // 1. Filtering and Sorting
+        function filterMatches(value) {
+            if (!currentData) return;
+            
+            const filteredData = value === 'all' ? 
+                currentData : currentData.filter(match => {
+                    const arbitrage = calculateArbitrage(match.odds);
+                    return value === 'arbitrage' ? arbitrage.hasArbitrage : !arbitrage.hasArbitrage;
+                });
+            
+            displayGroupedData(filteredData);
+            showNotification('Matches filtered successfully', 'success');
+        }
+
+        function sortMatches(value) {
+            if (!currentData) return;
+
+            const sortedData = [...currentData].sort((a, b) => {
+                switch(value) {
+                    case 'profit':
+                        const arbA = calculateArbitrage(a.odds);
+                        const arbB = calculateArbitrage(b.odds);
+                        return parseFloat(arbB.guaranteedProfit) - parseFloat(arbA.guaranteedProfit);
+                    case 'bookmakers':
+                        return b.odds.length - a.odds.length;
+                    default:
+                        return 0;
+                }
+            });
+
+            displayGroupedData(sortedData);
+            showNotification('Matches sorted successfully', 'success');
+        }
+
+        // 2. Auto-refresh
+        function setAutoRefresh(interval) {
+            clearInterval(autoRefreshInterval);
+            if (interval > 0) {
+                autoRefreshInterval = setInterval(convertToJson, parseInt(interval));
+                showNotification(`Auto-refresh set to ${interval/60000} minutes`, 'info');
+            }
+        }
+
+        // 3. Search
+        function searchMatches(query) {
+            if (!currentData || !query) {
+                displayGroupedData(currentData);
+                return;
+            }
+
+            const searchTerm = query.toLowerCase();
+            const filteredData = currentData.filter(match => 
+                match.home_team.toLowerCase().includes(searchTerm) ||
+                match.away_team.toLowerCase().includes(searchTerm) ||
+                match.odds.some(odd => odd.bookmaker.toLowerCase().includes(searchTerm))
+            );
+
+            displayGroupedData(filteredData);
+        }
+
+        // 5. Update Investment Amount
+        function updateInvestmentAmount(amount) {
+            if (amount < 100) {
+                showNotification('Minimum investment is $100', 'error');
+                document.getElementById('investmentAmount').value = 1000;
+                return;
+            }
+            if (currentData) {
+                displayGroupedData(currentData);
+                showNotification('Investment amount updated', 'success');
+            }
+        }
+
+        // 6. Notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.getElementById('notificationContainer').appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // 7. Enhanced Error Handling
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            showNotification(`Error: ${msg}`, 'error');
+            return false;
+        };
+
+        // 11. Loading State
+        function showLoading(show = true) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // Settings Management
+        let settings = {
+            theme: 'blue',
+            defaultInvestment: 1000,
+            refreshInterval: 60000,
+            notificationDuration: 3
+        };
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('appSettings');
+            if (savedSettings) {
+                settings = { ...settings, ...JSON.parse(savedSettings) };
+            }
+            applySettings();
+            
+            // Set only the auto-refresh interval by default
+            document.getElementById('refreshInterval').value = '60000';
+            setAutoRefresh('60000');
+        }
+
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+        }
+
+        // Apply settings
+        function applySettings() {
+            // Apply theme
+            document.documentElement.setAttribute('data-theme', settings.theme);
+            document.getElementById('themeSelect').value = settings.theme;
+
+            // Apply other settings
+            document.getElementById('defaultInvestment').value = settings.defaultInvestment;
+            document.getElementById('defaultRefreshInterval').value = settings.refreshInterval;
+            document.getElementById('notificationDuration').value = settings.notificationDuration;
+        }
+
+        // Toggle settings panel
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('open');
+        }
+
+        // Update default investment
+        function updateDefaultInvestment(value) {
+            settings.defaultInvestment = parseInt(value);
+            saveSettings();
+            if (currentData) {
+                displayGroupedData(currentData);
+            }
+        }
+
+        // Update refresh interval
+        function updateRefreshInterval(value) {
+            settings.refreshInterval = parseInt(value);
+            saveSettings();
+            setAutoRefresh(value);
+        }
+
+        // Update notification duration
+        function updateNotificationDuration(value) {
+            settings.notificationDuration = parseInt(value);
+            saveSettings();
+        }
+
+        // Load settings when page loads
+        window.addEventListener('load', loadSettings);
+
+        // Function to change theme
+        function changeTheme(themeName) {
+            settings.theme = themeName;
+            saveSettings();
+            applySettings();
+            showNotification(`Theme changed to ${themeName}`, 'success');
+        }
+    </script>
+</body>
+</html> 

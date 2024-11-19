@@ -1,0 +1,19 @@
+{
+  "name": "sheets-to-json-api",
+  "version": "1.0.0",
+  "description": "API to convert Google Sheets to JSON",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
